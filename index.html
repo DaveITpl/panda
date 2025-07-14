@@ -152,9 +152,6 @@
             </div>
           </div>
 
-          <button type="button" class="btn btn-primary w-100" onclick="updateLabel()">
-            Aktualizuj Etykietę
-          </button>
         </form>
       </div>
 
@@ -213,6 +210,8 @@
     function initializeForm() {
         const brandSelect = document.getElementById('brand-select');
         const productSelect = document.getElementById('product-select');
+        const expiryInput = document.getElementById('expiry-input');
+        const batchInput = document.getElementById('batch-input');
 
         // Wypełnienie listy marek
         Object.keys(productsData).forEach(brand => {
@@ -243,6 +242,9 @@
             document.getElementById('product-type-display').textContent = '-';
             document.getElementById('barcode-display').textContent = '-';
             document.getElementById('flavors-display').textContent = '-';
+            
+            // Automatyczna aktualizacja etykiety
+            updateLabel();
         });
 
         // Obsługa zmiany produktu
@@ -259,6 +261,19 @@
                     document.getElementById('flavors-display').textContent = `${productData.flavor1} / ${productData.flavor2}`;
                 }
             }
+            
+            // Automatyczna aktualizacja etykiety
+            updateLabel();
+        });
+        
+        // Automatyczna aktualizacja przy zmianie daty ważności
+        expiryInput.addEventListener('input', function() {
+            document.getElementById("expiry").textContent = this.value;
+        });
+        
+        // Automatyczna aktualizacja przy zmianie numeru partii
+        batchInput.addEventListener('input', function() {
+            document.getElementById("batch").textContent = this.value;
         });
     }
 
@@ -286,8 +301,24 @@
         const selectedBrand = document.getElementById('brand-select').value;
         const selectedProduct = document.getElementById('product-select').value;
 
-        if (!selectedBrand || !selectedProduct) {
-            alert('Proszę wybrać markę i produkt');
+        if (!selectedBrand) {
+            // Reset do stanu początkowego
+            document.querySelector(".logo img").src = "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KICA8cmVjdCB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgZmlsbD0iI2Y4ZjlmYSIgc3Ryb2tlPSIjZGVlMmU2IiBzdHJva2Utd2lkdGg9IjIiLz4KICA8dGV4dCB4PSIxMDAiIHk9IjEwNSIgZm9udC1mYW1pbHk9IkFyaWFsLCBzYW5zLXNlcmlmIiBmb250LXNpemU9IjE2IiBmaWxsPSIjNmM3NTdkIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj5MT0dPPC90ZXh0Pgo8L3N2Zz4=";
+            document.getElementById("left-text").textContent = "WYBIERZ PRODUKT";
+            document.getElementById("flavor-line1").textContent = "SMAK 1";
+            document.getElementById("flavor-line2").textContent = "SMAK 2";
+            generateBarcode('');
+            return;
+        }
+        
+        if (!selectedProduct) {
+            // Pokaż tylko logo marki
+            const brandData = productsData[selectedBrand];
+            document.querySelector(".logo img").src = brandData.logo;
+            document.getElementById("left-text").textContent = "WYBIERZ PRODUKT";
+            document.getElementById("flavor-line1").textContent = "SMAK 1";
+            document.getElementById("flavor-line2").textContent = "SMAK 2";
+            generateBarcode('');
             return;
         }
 
