@@ -208,6 +208,9 @@
 
     // Inicjalizacja formularza
     function initializeForm() {
+        // Automatyczne ustawienie daty ważności (2 lata w przód) i partii (aktualny miesiąc/rok)
+        setDefaultDates();
+        
         const brandSelect = document.getElementById('brand-select');
         const productSelect = document.getElementById('product-select');
         const expiryInput = document.getElementById('expiry-input');
@@ -275,6 +278,27 @@
         batchInput.addEventListener('input', function() {
             document.getElementById("batch").textContent = this.value;
         });
+    }
+
+    function setDefaultDates() {
+        const now = new Date();
+        const currentMonth = now.getMonth() + 1; // getMonth() zwraca 0-11, więc dodajemy 1
+        const currentYear = now.getFullYear();
+        
+        // Data ważności: 2 lata w przód, format MM/YYYY
+        const expiryYear = currentYear + 2;
+        const expiryDate = String(currentMonth).padStart(2, '0') + '/' + expiryYear;
+        
+        // Numer partii: aktualny miesiąc/rok, format M/YYYY
+        const batchNumber = currentMonth + '/' + currentYear;
+        
+        // Ustawienie wartości w inputach
+        document.getElementById('expiry-input').value = expiryDate;
+        document.getElementById('batch-input').value = batchNumber;
+        
+        // Aktualizacja etykiety
+        document.getElementById("expiry").textContent = expiryDate;
+        document.getElementById("batch").textContent = batchNumber;
     }
 
     function generateBarcode(number) {
