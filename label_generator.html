@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8">
+  <title>Generator Etykiet</title>
+  <style>
+      body { font-family: Arial, sans-serif; }
+      .label {
+          width: 6in;
+          height: 4in;
+          border: 1px solid #000;
+          position: relative;
+          box-sizing: border-box;
+          display: grid;
+          grid-template-columns: 1in 1fr 1in;
+      }
+      .left-text {
+          transform: translateY(-51%) translateX(12%) rotate(90deg);
+          transform-origin: left center;
+          font-size: 0.4in;
+          color: white;
+          background: #000;
+          width: 4in;
+          height: 1in;
+          display: grid;
+          align-items: center;
+          justify-content: center;
+      }
+      .center-content {
+          text-align: center;
+          display: grid;
+          grid-template-rows: 1fr auto;
+          gap:0;
+          height: 100%;
+      }
+      .flavor-container {
+          display: grid;
+          align-items: center;
+          justify-content: center;
+          margin-bottom: 0.3in;
+      }
+      .logo {
+          display: grid;
+          align-items: center;
+          justify-content: center;
+      }
+      .center-content img.logo {
+          width: 3in;
+      }
+      .flavor {
+          margin-top: 0.1in;
+          font-size: 0.4in;
+          font-weight: bold;
+      }
+      .right-text {
+          transform: translateY(-53%) translateX(-88%) rotate(-90deg);
+          transform-origin: right center;
+          font-size: 0.15in;
+          text-align: center;
+          display: grid;
+          grid-template-columns: auto 1fr;
+          align-items: center;
+          height: 1.4in;
+          width: 4in;
+      }
+      #barcode {
+          margin-bottom: 0.2in;
+      }
+      form { margin-bottom: 20px; }
+      form input, form select { margin: 2px; }
+      #expiry, #batch { font-weight: bold;}
+      .right-text-content {
+          display: grid;
+          align-items: center;
+          justify-content: center;
+          font-size: 0.18in;
+          margin-left: -13px;
+      }
+  </style>
+</head>
+<body>
+
+<form id="form">
+  <label>Lewa strona:
+    <select id="left-text-input">
+      <option value="SÓL NIKOTYNOWA">SÓL NIKOTYNOWA</option>
+      <option value="LONGFILL">LONGFILL</option>
+    </select>
+  </label>
+  <br>
+  <label>Logo: <input type="file" id="logo-input" accept="image/*"></label>
+  <label>Smak linia 1: <input type="text" id="flavor1" value="ZIELONY BANAN"></label>
+  <label>Smak linia 2: <input type="text" id="flavor2" value="WINOGRONO"></label>
+  <br>
+  <label>Data ważności: <input type="text" id="expiry-input" value="06/2027"></label>
+  <label>Nr partii: <input type="text" id="batch-input" value="5/2025"></label>
+  <br>
+  <label>Kod kreskowy: <input type="text" id="barcode-input" value="5905616103020"></label>
+  <br>
+  <button type="button" onclick="updateLabel()">Aktualizuj Etykietę</button>
+</form>
+
+<div class="label" id="label">
+  <div class="left-text" id="left-text">SÓL NIKOTYNOWA</div>
+  <div class="center-content">
+    <div class="logo"><img src="logo.png" alt="Logo" class="logo"></div>
+    <div class="flavor-container">
+      <div class="flavor" id="flavor-line1">ZIELONY BANAN</div>
+      <div class="flavor" id="flavor-line2">WINOGRONO</div>
+    </div>
+  </div>
+  <div class="right-text">
+    <div>
+      <svg id="barcode"></svg>
+    </div>
+    <div class="right-text-content">
+      <div>Data ważności: <span id="expiry">06/2027</span></div>
+      <div>Nr partii: <span id="batch">5/2025</span></div>
+    </div>
+  </div>
+</div>
+
+<br>
+<button onclick="downloadLabel()">Pobierz jako PNG</button>
+
+<button onclick="printLabelPNG()">Drukuj etykietę</button>
+
+<script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script>
+    function generateBarcode(number) {
+        const barcodeEl = document.getElementById("barcode");
+        barcodeEl.innerHTML = '';
+        JsBarcode(barcodeEl, number, {
+            format: "EAN13",
+            displayValue: true,
+            fontSize: 14,
+            height: 75,
+            width: 1.5
+        });
+    }
+
+    document.getElementById("logo-input").addEventListener("change", function () {
+        const file = this.files[0];
+        if (!file) return;
+
+        const reader = new FileReader();
+        reader.onload = function (e) {
+            document.querySelector(".logo img").src = e.target.result;
+        };
+        reader.readAsDataURL(file);
+    });
+
+
+    function updateLabel() {
+        document.getElementById("left-text").textContent = document.getElementById("left-text-input").value;
+        document.getElementById("flavor-line1").textContent = document.getElementById("flavor1").value;
+        document.getElementById("flavor-line2").textContent = document.getElementById("flavor2").value;
+        document.getElementById("expiry").textContent = document.getElementById("expiry-input").value;
+        document.getElementById("batch").textContent = document.getElementById("batch-input").value;
+
+        const barcodeNumber = document.getElementById("barcode-input").value;
+        generateBarcode(barcodeNumber);
+    }
+
+    function downloadLabel() {
+        const label = document.getElementById("label");
+        html2canvas(label, { scale: 1 }).then(canvas => {
+            const link = document.createElement('a');
+            link.download = `${document.getElementById("barcode-input").value}.png`;
+            link.href = canvas.toDataURL();
+            link.click();
+        });
+    }
+
+    function printLabelPNG() {
+        const label = document.getElementById("label");
+        html2canvas(label, { scale: 1 }).then(canvas => {
+            const dataUrl = canvas.toDataURL("image/png");
+
+            const win = window.open('', 'PRINT', 'height=800,width=800');
+            win.document.write(`
+            <html>
+            <head>
+              <title>Etykieta</title>
+              <style>
+                body { margin:0; text-align:center; }
+                img { max-width:100%; }
+              </style>
+            </head>
+            <body>
+              <img src=\"${dataUrl}\" alt=\"Etykieta\">
+            </body>
+            </html>
+        `);
+            win.document.close();
+            win.focus();
+            win.print();
+            // win.close(); // możesz odkomentować jeśli chcesz, żeby okno zamykało się automatycznie
+        });
+    }
+
+
+    // inicjalizacja
+    generateBarcode(document.getElementById("barcode-input").value);
+</script>
+
+</body>
+</html>
