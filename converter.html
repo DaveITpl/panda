@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Konwerter Base64 - Generator Etykiet</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+  <style>
+      .drop-zone {
+          border: 3px dashed #dee2e6;
+          border-radius: 10px;
+          padding: 40px;
+          text-align: center;
+          background: #f8f9fa;
+          transition: all 0.3s ease;
+          cursor: pointer;
+          min-height: 200px;
+          display: flex;
+          flex-direction: column;
+          justify-content: center;
+          align-items: center;
+      }
+
+      .drop-zone:hover {
+          border-color: #0d6efd;
+          background: #e7f3ff;
+      }
+
+      .drop-zone.dragover {
+          border-color: #198754;
+          background: #d1e7dd;
+      }
+
+      .preview-container {
+          max-height: 300px;
+          overflow: hidden;
+          border-radius: 8px;
+          border: 1px solid #dee2e6;
+          background: white;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          padding: 20px;
+      }
+
+      .preview-image {
+          max-width: 100%;
+          max-height: 250px;
+          object-fit: contain;
+      }
+
+      .result-textarea {
+          font-family: 'Courier New', monospace;
+          font-size: 12px;
+          resize: vertical;
+          min-height: 150px;
+      }
+
+      .file-info {
+          background: #e9ecef;
+          border-radius: 6px;
+          padding: 10px;
+          margin: 10px 0;
+      }
+
+      .navbar-brand {
+          font-weight: bold;
+      }
+
+      .card {
+          box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+          border: none;
+      }
+
+      .btn-copy {
+          position: relative;
+      }
+
+      .copy-success {
+          position: absolute;
+          top: -30px;
+          left: 50%;
+          transform: translateX(-50%);
+          background: #198754;
+          color: white;
+          padding: 4px 8px;
+          border-radius: 4px;
+          font-size: 12px;
+          opacity: 0;
+          transition: opacity 0.3s;
+      }
+
+      .copy-success.show {
+          opacity: 1;
+      }
+  </style>
+</head>
+<body class="bg-light">
+
+<!-- Navigation -->
+<nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+  <div class="container">
+    <a class="navbar-brand" href="index.html">
+      <i class="bi bi-tag-fill me-2"></i>Generator Etykiet
+    </a>
+    <div class="navbar-nav ms-auto">
+      <a class="nav-link" href="index.html">
+        <i class="bi bi-house me-1"></i>Generator
+      </a>
+      <a class="nav-link active" href="converter.html">
+        <i class="bi bi-file-earmark-image me-1"></i>Konwerter Base64
+      </a>
+    </div>
+  </div>
+</nav>
+
+<div class="container py-4">
+  <div class="row">
+    <div class="col-12">
+      <h1 class="text-center mb-4">
+        <i class="bi bi-file-earmark-code text-primary me-2"></i>
+        Konwerter Base64
+      </h1>
+      <p class="text-center text-muted mb-4">
+        Konwertuj pliki graficzne (PNG, JPG, SVG) na format base64 do użycia w generatorze etykiet
+      </p>
+    </div>
+  </div>
+
+  <div class="row">
+    <!-- Upload Section -->
+    <div class="col-lg-6 mb-4">
+      <div class="card h-100">
+        <div class="card-header bg-primary text-white">
+          <h5 class="card-title mb-0">
+            <i class="bi bi-cloud-upload me-2"></i>Wgraj plik
+          </h5>
+        </div>
+        <div class="card-body">
+          <div class="drop-zone" id="dropZone">
+            <i class="bi bi-cloud-upload display-4 text-muted mb-3"></i>
+            <h5 class="text-muted">Przeciągnij plik tutaj</h5>
+            <p class="text-muted mb-3">lub</p>
+            <button type="button" class="btn btn-primary" onclick="document.getElementById('fileInput').click()">
+              <i class="bi bi-folder2-open me-2"></i>Wybierz plik
+            </button>
+            <input type="file" id="fileInput" accept="image/*" style="display: none;">
+            <small class="text-muted d-block mt-3">
+              Obsługiwane formaty: PNG, JPG, JPEG, SVG, GIF, WebP
+            </small>
+          </div>
+
+          <div id="fileInfo" class="file-info" style="display: none;">
+            <div class="row">
+              <div class="col-6">
+                <small><strong>Nazwa:</strong> <span id="fileName"></span></small>
+              </div>
+              <div class="col-6">
+                <small><strong>Rozmiar:</strong> <span id="fileSize"></span></small>
+              </div>
+              <div class="col-6 mt-1">
+                <small><strong>Typ:</strong> <span id="fileType"></span></small>
+              </div>
+              <div class="col-6 mt-1">
+                <small><strong>Wymiary:</strong> <span id="fileDimensions"></span></small>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Preview Section -->
+    <div class="col-lg-6 mb-4">
+      <div class="card h-100">
+        <div class="card-header bg-success text-white">
+          <h5 class="card-title mb-0">
+            <i class="bi bi-eye me-2"></i>Podgląd
+          </h5>
+        </div>
+        <div class="card-body">
+          <div class="preview-container" id="previewContainer">
+            <div class="text-center text-muted">
+              <i class="bi bi-image display-4 mb-3"></i>
+              <p>Podgląd pojawi się tutaj po wgraniu pliku</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Result Section -->
+  <div class="row">
+    <div class="col-12">
+      <div class="card">
+        <div class="card-header bg-info text-white d-flex justify-content-between align-items-center">
+          <h5 class="card-title mb-0">
+            <i class="bi bi-code-square me-2"></i>Wynik Base64
+          </h5>
+          <div>
+            <button class="btn btn-light btn-sm btn-copy" id="copyBtn" onclick="copyToClipboard()" disabled>
+              <i class="bi bi-clipboard me-1"></i>Kopiuj
+              <div class="copy-success" id="copySuccess">Skopiowano!</div>
+            </button>
+            <button class="btn btn-light btn-sm" id="clearBtn" onclick="clearResult()" disabled>
+              <i class="bi bi-trash me-1"></i>Wyczyść
+            </button>
+          </div>
+        </div>
+        <div class="card-body">
+          <textarea
+                  class="form-control result-textarea"
+                  id="base64Result"
+                  placeholder="Wynik base64 pojawi się tutaj po wgraniu pliku..."
+                  readonly
+          ></textarea>
+          <div class="mt-3">
+            <small class="text-muted">
+              <i class="bi bi-info-circle me-1"></i>
+              Skopiuj powyższy kod i wklej go jako wartość logo w pliku products-config.js
+            </small>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Instructions -->
+  <div class="row mt-4">
+    <div class="col-12">
+      <div class="card">
+        <div class="card-header bg-warning text-dark">
+          <h5 class="card-title mb-0">
+            <i class="bi bi-lightbulb me-2"></i>Instrukcja użycia
+          </h5>
+        </div>
+        <div class="card-body">
+          <div class="row">
+            <div class="col-md-6">
+              <h6><i class="bi bi-1-circle text-primary me-2"></i>Wgraj plik</h6>
+              <p class="small text-muted">Przeciągnij plik graficzny lub kliknij "Wybierz plik"</p>
+
+              <h6><i class="bi bi-2-circle text-primary me-2"></i>Sprawdź podgląd</h6>
+              <p class="small text-muted">Upewnij się, że obraz wygląda poprawnie</p>
+            </div>
+            <div class="col-md-6">
+              <h6><i class="bi bi-3-circle text-primary me-2"></i>Skopiuj kod</h6>
+              <p class="small text-muted">Kliknij "Kopiuj" aby skopiować kod base64</p>
+
+              <h6><i class="bi bi-4-circle text-primary me-2"></i>Użyj w konfiguracji</h6>
+              <p class="small text-muted">Wklej kod jako wartość logo w products-config.js</p>
+            </div>
+          </div>
+
+          <div class="alert alert-info mt-3">
+            <h6><i class="bi bi-gear me-2"></i>Przykład użycia w products-config.js:</h6>
+            <code>
+              "Nowa Marka": {<br>
+              &nbsp;&nbsp;logo: "data:image/png;base64,TWÓJ_KOD_BASE64_TUTAJ",<br>
+              &nbsp;&nbsp;products: { ... }<br>
+              }
+            </code>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    const dropZone = document.getElementById('dropZone');
+    const fileInput = document.getElementById('fileInput');
+    const previewContainer = document.getElementById('previewContainer');
+    const base64Result = document.getElementById('base64Result');
+    const fileInfo = document.getElementById('fileInfo');
+    const copyBtn = document.getElementById('copyBtn');
+    const clearBtn = document.getElementById('clearBtn');
+
+    // Drag and drop functionality
+    dropZone.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        dropZone.classList.add('dragover');
+    });
+
+    dropZone.addEventListener('dragleave', () => {
+        dropZone.classList.remove('dragover');
+    });
+
+    dropZone.addEventListener('drop', (e) => {
+        e.preventDefault();
+        dropZone.classList.remove('dragover');
+        const files = e.dataTransfer.files;
+        if (files.length > 0) {
+            handleFile(files[0]);
+        }
+    });
+
+    // File input change
+    fileInput.addEventListener('change', (e) => {
+        if (e.target.files.length > 0) {
+            handleFile(e.target.files[0]);
+        }
+    });
+
+    function handleFile(file) {
+        // Validate file type
+        if (!file.type.startsWith('image/')) {
+            alert('Proszę wybrać plik graficzny (PNG, JPG, SVG, itp.)');
+            return;
+        }
+
+        // Show file info
+        showFileInfo(file);
+
+        // Create FileReader
+        const reader = new FileReader();
+
+        reader.onload = function(e) {
+            const base64String = e.target.result;
+
+            // Show preview
+            showPreview(base64String, file.type);
+
+            // Show base64 result
+            base64Result.value = base64String;
+            copyBtn.disabled = false;
+            clearBtn.disabled = false;
+        };
+
+        reader.readAsDataURL(file);
+    }
+
+    function showFileInfo(file) {
+        document.getElementById('fileName').textContent = file.name;
+        document.getElementById('fileSize').textContent = formatFileSize(file.size);
+        document.getElementById('fileType').textContent = file.type;
+
+        // Get image dimensions
+        if (file.type.startsWith('image/')) {
+            const img = new Image();
+            img.onload = function() {
+                document.getElementById('fileDimensions').textContent = `${this.width} × ${this.height}px`;
+            };
+            img.src = URL.createObjectURL(file);
+        }
+
+        fileInfo.style.display = 'block';
+    }
+
+    function showPreview(base64String, fileType) {
+        if (fileType.startsWith('image/')) {
+            previewContainer.innerHTML = `
+        <img src="${base64String}" alt="Preview" class="preview-image">
+      `;
+        } else {
+            previewContainer.innerHTML = `
+        <div class="text-center text-muted">
+          <i class="bi bi-file-earmark display-4 mb-3"></i>
+          <p>Podgląd niedostępny dla tego typu pliku</p>
+        </div>
+      `;
+        }
+    }
+
+    function formatFileSize(bytes) {
+        if (bytes === 0) return '0 Bytes';
+        const k = 1024;
+        const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+        const i = Math.floor(Math.log(bytes) / Math.log(k));
+        return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+    }
+
+    function copyToClipboard() {
+        base64Result.select();
+        document.execCommand('copy');
+
+        // Show success message
+        const successMsg = document.getElementById('copySuccess');
+        successMsg.classList.add('show');
+        setTimeout(() => {
+            successMsg.classList.remove('show');
+        }, 2000);
+    }
+
+    function clearResult() {
+        base64Result.value = '';
+        previewContainer.innerHTML = `
+      <div class="text-center text-muted">
+        <i class="bi bi-image display-4 mb-3"></i>
+        <p>Podgląd pojawi się tutaj po wgraniu pliku</p>
+      </div>
+    `;
+        fileInfo.style.display = 'none';
+        fileInput.value = '';
+        copyBtn.disabled = true;
+        clearBtn.disabled = true;
+    }
+</script>
+
+</body>
+</html>
