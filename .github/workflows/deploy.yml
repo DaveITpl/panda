@@ -27,7 +27,7 @@ jobs:
       - name: Build
         run: |
           mkdir -p _site
-          cp label_generator.html _site/index.html
+          cp index.html _site/index.html
           echo "Label Generator deployed successfully!" > _site/README.txt
 
       - name: Upload artifact
