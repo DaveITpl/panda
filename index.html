@@ -406,8 +406,8 @@
             <head>
               <title>Etykieta - ${selectedBrand} ${selectedProduct}</title>
               <style>
-                body { margin:0; text-align:center; }
-                img { max-width:100%; }
+                body { margin:0; padding: 0; }
+                img { width: 6in; height: 4in; }
               </style>
             </head>
             <body>
@@ -415,9 +415,9 @@
             </body>
             </html>
         `);
-            // win.document.close();
             await win.focus();
             await win.print();
+            await win.document.close();
         });
     }
 
