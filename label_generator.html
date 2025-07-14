@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <title>Generator Etykiet</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
   <style>
-      body { font-family: Arial, sans-serif; }
       .label {
           width: 6in;
           height: 4in;
@@ -13,6 +13,7 @@
           box-sizing: border-box;
           display: grid;
           grid-template-columns: 1in 1fr 1in;
+          background: white;
       }
       .left-text {
           transform: translateY(-51%) translateX(12%) rotate(90deg);
@@ -46,6 +47,8 @@
       }
       .center-content img.logo {
           width: 3in;
+          height: auto;
+          max-height: 2in;
       }
       .flavor {
           margin-top: 0.1in;
@@ -66,8 +69,6 @@
       #barcode {
           margin-bottom: 0.2in;
       }
-      form { margin-bottom: 20px; }
-      form input, form select { margin: 2px; }
       #expiry, #batch { font-weight: bold;}
       .right-text-content {
           display: grid;
@@ -76,133 +77,329 @@
           font-size: 0.18in;
           margin-left: -13px;
       }
+      .label-preview {
+          border: 2px dashed #dee2e6;
+          padding: 20px;
+          margin: 20px 0;
+          background: #f8f9fa;
+      }
+      .form-section {
+          background: white;
+          border-radius: 8px;
+          padding: 20px;
+          margin-bottom: 20px;
+          box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      }
   </style>
 </head>
-<body>
+<body class="bg-light">
 
-<form id="form">
-  <label>Lewa strona:
-    <select id="left-text-input">
-      <option value="SÓL NIKOTYNOWA">SÓL NIKOTYNOWA</option>
-      <option value="LONGFILL">LONGFILL</option>
-    </select>
-  </label>
-  <br>
-  <label>Logo: <input type="file" id="logo-input" accept="image/*"></label>
-  <label>Smak linia 1: <input type="text" id="flavor1" value="ZIELONY BANAN"></label>
-  <label>Smak linia 2: <input type="text" id="flavor2" value="WINOGRONO"></label>
-  <br>
-  <label>Data ważności: <input type="text" id="expiry-input" value="06/2027"></label>
-  <label>Nr partii: <input type="text" id="batch-input" value="5/2025"></label>
-  <br>
-  <label>Kod kreskowy: <input type="text" id="barcode-input" value="5905616103020"></label>
-  <br>
-  <button type="button" onclick="updateLabel()">Aktualizuj Etykietę</button>
-</form>
-
-<div class="label" id="label">
-  <div class="left-text" id="left-text">SÓL NIKOTYNOWA</div>
-  <div class="center-content">
-    <div class="logo"><img src="logo.png" alt="Logo" class="logo"></div>
-    <div class="flavor-container">
-      <div class="flavor" id="flavor-line1">ZIELONY BANAN</div>
-      <div class="flavor" id="flavor-line2">WINOGRONO</div>
+<div class="container-fluid py-4">
+  <div class="row">
+    <div class="col-12">
+      <h1 class="text-center mb-4">Generator Etykiet 6x4"</h1>
     </div>
   </div>
-  <div class="right-text">
-    <div>
-      <svg id="barcode"></svg>
+
+  <div class="row">
+    <!-- Formularz -->
+    <div class="col-lg-4">
+      <div class="form-section">
+        <h3 class="h5 mb-3">Konfiguracja Etykiety</h3>
+        
+        <form id="form">
+          <div class="mb-3">
+            <label for="brand-select" class="form-label">Marka produktu</label>
+            <select class="form-select" id="brand-select">
+              <option value="">Wybierz markę...</option>
+            </select>
+          </div>
+
+          <div class="mb-3">
+            <label for="product-select" class="form-label">Produkt</label>
+            <select class="form-select" id="product-select" disabled>
+              <option value="">Najpierw wybierz markę...</option>
+            </select>
+          </div>
+
+          <div class="mb-3">
+            <label for="flavor1" class="form-label">Smak - linia 1</label>
+            <input type="text" class="form-control" id="flavor1" value="ZIELONY BANAN">
+          </div>
+
+          <div class="mb-3">
+            <label for="flavor2" class="form-label">Smak - linia 2</label>
+            <input type="text" class="form-control" id="flavor2" value="WINOGRONO">
+          </div>
+
+          <div class="row">
+            <div class="col-6">
+              <div class="mb-3">
+                <label for="expiry-input" class="form-label">Data ważności</label>
+                <input type="text" class="form-control" id="expiry-input" value="06/2027">
+              </div>
+            </div>
+            <div class="col-6">
+              <div class="mb-3">
+                <label for="batch-input" class="form-label">Nr partii</label>
+                <input type="text" class="form-control" id="batch-input" value="5/2025">
+              </div>
+            </div>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label">Informacje automatyczne:</label>
+            <div class="row">
+              <div class="col-6">
+                <small class="text-muted">Typ: <span id="product-type-display">-</span></small>
+              </div>
+              <div class="col-6">
+                <small class="text-muted">Kod: <span id="barcode-display">-</span></small>
+              </div>
+            </div>
+          </div>
+
+          <button type="button" class="btn btn-primary w-100" onclick="updateLabel()">
+            Aktualizuj Etykietę
+          </button>
+        </form>
+      </div>
+
+      <div class="form-section">
+        <h3 class="h5 mb-3">Akcje</h3>
+        <div class="d-grid gap-2">
+          <button class="btn btn-success" onclick="downloadLabel()">
+            <i class="bi bi-download"></i> Pobierz jako PNG
+          </button>
+          <button class="btn btn-info" onclick="printLabelPNG()">
+            <i class="bi bi-printer"></i> Drukuj etykietę
+          </button>
+        </div>
+      </div>
     </div>
-    <div class="right-text-content">
-      <div>Data ważności: <span id="expiry">06/2027</span></div>
-      <div>Nr partii: <span id="batch">5/2025</span></div>
+
+    <!-- Podgląd etykiety -->
+    <div class="col-lg-8">
+      <div class="label-preview">
+        <h3 class="h5 mb-3">Podgląd etykiety</h3>
+        <div class="d-flex justify-content-center">
+          <div class="label" id="label">
+            <div class="left-text" id="left-text">WYBIERZ PRODUKT</div>
+            <div class="center-content">
+              <div class="logo">
+                <img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KICA8cmVjdCB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgZmlsbD0iI2Y4ZjlmYSIgc3Ryb2tlPSIjZGVlMmU2IiBzdHJva2Utd2lkdGg9IjIiLz4KICA8dGV4dCB4PSIxMDAiIHk9IjEwNSIgZm9udC1mYW1pbHk9IkFyaWFsLCBzYW5zLXNlcmlmIiBmb250LXNpemU9IjE2IiBmaWxsPSIjNmM3NTdkIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj5MT0dPPC90ZXh0Pgo8L3N2Zz4=" alt="Logo" class="logo">
+              </div>
+              <div class="flavor-container">
+                <div class="flavor" id="flavor-line1">ZIELONY BANAN</div>
+                <div class="flavor" id="flavor-line2">WINOGRONO</div>
+              </div>
+            </div>
+            <div class="right-text">
+              <div>
+                <svg id="barcode"></svg>
+              </div>
+              <div class="right-text-content">
+                <div>Data ważności: <span id="expiry">06/2027</span></div>
+                <div>Nr partii: <span id="batch">5/2025</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 </div>
 
-<br>
-<button onclick="downloadLabel()">Pobierz jako PNG</button>
-
-<button onclick="printLabelPNG()">Drukuj etykietę</button>
-
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <script>
-    function generateBarcode(number) {
-        const barcodeEl = document.getElementById("barcode");
-        barcodeEl.innerHTML = '';
-        JsBarcode(barcodeEl, number, {
-            format: "EAN13",
-            displayValue: true,
-            fontSize: 14,
-            height: 75,
-            width: 1.5
+    // Struktura danych produktów
+    const productsData = {
+        "Panda": {
+            logo: "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KICA8Y2lyY2xlIGN4PSIxMDAiIGN5PSIxMDAiIHI9IjkwIiBmaWxsPSIjMDAwIiBzdHJva2U9IiNmZmYiIHN0cm9rZS13aWR0aD0iNCIvPgogIDx0ZXh0IHg9IjEwMCIgeT0iMTEwIiBmb250LWZhbWlseT0iQXJpYWwsIHNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iMzAiIGZvbnQtd2VpZ2h0PSJib2xkIiBmaWxsPSIjZmZmIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj5QQU5EQTwvdGV4dD4KPC9zdmc+",
+            products: {
+                "Panda Mix Owocowy": { type: "S", barcode: "5905616103020" },
+                "Panda Longfill Mięta": { type: "L", barcode: "5905616103021" },
+                "Panda Sól Truskawka": { type: "S", barcode: "5905616103022" },
+                "Panda Longfill Wanilia": { type: "L", barcode: "5905616103023" }
+            }
+        },
+        "Siciliana": {
+            logo: "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KICA8cmVjdCB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgZmlsbD0iI2ZmNjk0MyIgcng9IjIwIi8+CiAgPHRleHQgeD0iMTAwIiB5PSI4NSIgZm9udC1mYW1pbHk9IkFyaWFsLCBzYW5zLXNlcmlmIiBmb250LXNpemU9IjIyIiBmb250LXdlaWdodD0iYm9sZCIgZmlsbD0iI2ZmZiIgdGV4dC1hbmNob3I9Im1pZGRsZSI+U0lDSUxJQU5BPC90ZXh0PgogIDx0ZXh0IHg9IjEwMCIgeT0iMTI1IiBmb250LWZhbWlseT0iQXJpYWwsIHNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iMTYiIGZpbGw9IiNmZmYiIHRleHQtYW5jaG9yPSJtaWRkbGUiPkl0YWxpYW4gU3R5bGU8L3RleHQ+Cjwvc3ZnPg==",
+            products: {
+                "Siciliana Limoncello": { type: "L", barcode: "5905616103030" },
+                "Siciliana Sól Cytryna": { type: "S", barcode: "5905616103031" },
+                "Siciliana Tiramisu": { type: "L", barcode: "5905616103032" },
+                "Siciliana Sól Bazylia": { type: "S", barcode: "5905616103033" }
+            }
+        },
+        "Grygusiowa": {
+            logo: "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KICA8Y2lyY2xlIGN4PSIxMDAiIGN5PSIxMDAiIHI9IjkwIiBmaWxsPSIjMjhhNzQ1IiBzdHJva2U9IiNmZmYiIHN0cm9rZS13aWR0aD0iNCIvPgogIDx0ZXh0IHg9IjEwMCIgeT0iOTAiIGZvbnQtZmFtaWx5PSJBcmlhbCwgc2Fucy1zZXJpZiIgZm9udC1zaXplPSIxOCIgZm9udC13ZWlnaHQ9ImJvbGQiIGZpbGw9IiNmZmYiIHRleHQtYW5jaG9yPSJtaWRkbGUiPkdSWUdVU0lPV0E8L3RleHQ+CiAgPHRleHQgeD0iMTAwIiB5PSIxMjAiIGZvbnQtZmFtaWx5PSJBcmlhbCwgc2Fucy1zZXJpZiIgZm9udC1zaXplPSIxNCIgZmlsbD0iI2ZmZiIgdGV4dC1hbmNob3I9Im1pZGRsZSI+TmF0dXJhbDwvdGV4dD4KPC9zdmc+",
+            products: {
+                "Grygusiowa Jabłko": { type: "L", barcode: "5905616103040" },
+                "Grygusiowa Sól Gruszka": { type: "S", barcode: "5905616103041" },
+                "Grygusiowa Malina": { type: "L", barcode: "5905616103042" },
+                "Grygusiowa Sól Wiśnia": { type: "S", barcode: "5905616103043" }
+            }
+        }
+    };
+
+    // Inicjalizacja formularza
+    function initializeForm() {
+        const brandSelect = document.getElementById('brand-select');
+        const productSelect = document.getElementById('product-select');
+
+        // Wypełnienie listy marek
+        Object.keys(productsData).forEach(brand => {
+            const option = document.createElement('option');
+            option.value = brand;
+            option.textContent = brand;
+            brandSelect.appendChild(option);
+        });
+
+        // Obsługa zmiany marki
+        brandSelect.addEventListener('change', function() {
+            const selectedBrand = this.value;
+            productSelect.innerHTML = '<option value="">Wybierz produkt...</option>';
+            
+            if (selectedBrand && productsData[selectedBrand]) {
+                productSelect.disabled = false;
+                Object.keys(productsData[selectedBrand].products).forEach(productName => {
+                    const option = document.createElement('option');
+                    option.value = productName;
+                    option.textContent = productName;
+                    productSelect.appendChild(option);
+                });
+            } else {
+                productSelect.disabled = true;
+            }
+            
+            // Reset informacji o produkcie
+            document.getElementById('product-type-display').textContent = '-';
+            document.getElementById('barcode-display').textContent = '-';
+        });
+
+        // Obsługa zmiany produktu
+        productSelect.addEventListener('change', function() {
+            const selectedBrand = brandSelect.value;
+            const selectedProduct = this.value;
+            
+            if (selectedBrand && selectedProduct && productsData[selectedBrand]) {
+                const productData = productsData[selectedBrand].products[selectedProduct];
+                if (productData) {
+                    const typeText = productData.type === 'S' ? 'SÓL NIKOTYNOWA' : 'LONGFILL';
+                    document.getElementById('product-type-display').textContent = typeText;
+                    document.getElementById('barcode-display').textContent = productData.barcode;
+                }
+            }
         });
     }
 
-    document.getElementById("logo-input").addEventListener("change", function () {
-        const file = this.files[0];
-        if (!file) return;
-
-        const reader = new FileReader();
-        reader.onload = function (e) {
-            document.querySelector(".logo img").src = e.target.result;
-        };
-        reader.readAsDataURL(file);
-    });
-
+    function generateBarcode(number) {
+        const barcodeEl = document.getElementById("barcode");
+        barcodeEl.innerHTML = '';
+        if (number && number.length > 0) {
+            JsBarcode(barcodeEl, number, {
+                format: "EAN13",
+                displayValue: true,
+                fontSize: 14,
+                height: 75,
+                width: 1.5
+            });
+        }
+    }
 
     function updateLabel() {
-        document.getElementById("left-text").textContent = document.getElementById("left-text-input").value;
+        const selectedBrand = document.getElementById('brand-select').value;
+        const selectedProduct = document.getElementById('product-select').value;
+        
+        if (!selectedBrand || !selectedProduct) {
+            alert('Proszę wybrać markę i produkt');
+            return;
+        }
+
+        const brandData = productsData[selectedBrand];
+        const productData = brandData.products[selectedProduct];
+        
+        // Aktualizacja logo
+        document.querySelector(".logo img").src = brandData.logo;
+        
+        // Aktualizacja typu produktu (lewa strona)
+        const typeText = productData.type === 'S' ? 'SÓL NIKOTYNOWA' : 'LONGFILL';
+        document.getElementById("left-text").textContent = typeText;
+        
+        // Aktualizacja smaków
         document.getElementById("flavor-line1").textContent = document.getElementById("flavor1").value;
         document.getElementById("flavor-line2").textContent = document.getElementById("flavor2").value;
+        
+        // Aktualizacja daty i partii
         document.getElementById("expiry").textContent = document.getElementById("expiry-input").value;
         document.getElementById("batch").textContent = document.getElementById("batch-input").value;
 
-        const barcodeNumber = document.getElementById("barcode-input").value;
-        generateBarcode(barcodeNumber);
+        // Generowanie kodu kreskowego
+        generateBarcode(productData.barcode);
     }
 
     function downloadLabel() {
+        const selectedBrand = document.getElementById('brand-select').value;
+        const selectedProduct = document.getElementById('product-select').value;
+        
+        if (!selectedBrand || !selectedProduct) {
+            alert('Proszę wybrać markę i produkt przed pobraniem');
+            return;
+        }
+
         const label = document.getElementById("label");
-        html2canvas(label, { scale: 1 }).then(canvas => {
+        html2canvas(label, { scale: 2 }).then(canvas => {
             const link = document.createElement('a');
-            link.download = `${document.getElementById("barcode-input").value}.png`;
+            const productData = productsData[selectedBrand].products[selectedProduct];
+            link.download = `${selectedBrand}_${selectedProduct.replace(/\s+/g, '_')}_${productData.barcode}.png`;
             link.href = canvas.toDataURL();
             link.click();
         });
     }
 
     function printLabelPNG() {
+        const selectedBrand = document.getElementById('brand-select').value;
+        const selectedProduct = document.getElementById('product-select').value;
+        
+        if (!selectedBrand || !selectedProduct) {
+            alert('Proszę wybrać markę i produkt przed drukowaniem');
+            return;
+        }
+
         const label = document.getElementById("label");
-        html2canvas(label, { scale: 1 }).then(canvas => {
+        html2canvas(label, { scale: 2 }).then(canvas => {
             const dataUrl = canvas.toDataURL("image/png");
 
             const win = window.open('', 'PRINT', 'height=800,width=800');
             win.document.write(`
             <html>
             <head>
-              <title>Etykieta</title>
+              <title>Etykieta - ${selectedBrand} ${selectedProduct}</title>
               <style>
                 body { margin:0; text-align:center; }
                 img { max-width:100%; }
               </style>
             </head>
             <body>
-              <img src=\"${dataUrl}\" alt=\"Etykieta\">
+              <img src="${dataUrl}" alt="Etykieta">
             </body>
             </html>
         `);
             win.document.close();
             win.focus();
             win.print();
-            // win.close(); // możesz odkomentować jeśli chcesz, żeby okno zamykało się automatycznie
         });
     }
 
-
-    // inicjalizacja
-    generateBarcode(document.getElementById("barcode-input").value);
+    // Inicjalizacja po załadowaniu strony
+    document.addEventListener('DOMContentLoaded', function() {
+        initializeForm();
+        // Generuj pusty kod kreskowy na start
+        generateBarcode('');
+    });
 </script>
 
 </body>
