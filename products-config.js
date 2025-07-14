@@ -1,6 +1,6 @@
 const productsData = {
     "Panda": {
-        logo: "images/panda-logo.svg",
+        logo: "images/Marka.png",
         products: {
             "Panda Mix Owocowy": {
                 type: "S",
@@ -58,7 +58,7 @@ const productsData = {
         }
     },
     "Grygusiowa": {
-        logo: "images/grygusiowa-logo.svg",
+        logo: "images/panda.jpg",
         products: {
             "Grygusiowa Jabłko": {
                 type: "L",

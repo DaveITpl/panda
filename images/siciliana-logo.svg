@@ -1,5 +1,5 @@
-<svg width="200" height="200" xmlns="http://www.w3.org/2000/svg">
-    <rect width="200" height="200" fill="#ff6943" rx="20"/>
-    <text x="100" y="85" font-family="Arial, sans-serif" font-size="22" font-weight="bold" fill="#fff" text-anchor="middle">SICILIANA</text>
-    <text x="100" y="125" font-family="Arial, sans-serif" font-size="16" fill="#fff" text-anchor="middle">Italian Style</text>
+<svg width="300" height="200" xmlns="http://www.w3.org/2000/svg">
+    <rect width="300" height="200" fill="#ff6943" rx="20"/>
+    <text x="150" y="85" font-family="Arial, sans-serif" font-size="22" font-weight="bold" fill="#fff" text-anchor="middle">SICILIANA</text>
+    <text x="150" y="125" font-family="Arial, sans-serif" font-size="16" fill="#fff" text-anchor="middle">Italian Style</text>
 </svg>
