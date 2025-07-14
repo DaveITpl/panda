@@ -33,7 +33,7 @@ jobs:
         uses: actions/configure-pages@v4
 
       - name: Build
-        run: |
+        run:
           # Create a build directory
           mkdir -p _site
           # Copy HTML file to build directory
