@@ -106,7 +106,7 @@
     <div class="col-lg-4">
       <div class="form-section">
         <h3 class="h5 mb-3">Konfiguracja Etykiety</h3>
-        
+
         <form id="form">
           <div class="mb-3">
             <label for="brand-select" class="form-label">Marka produktu</label>
@@ -255,7 +255,7 @@
         brandSelect.addEventListener('change', function() {
             const selectedBrand = this.value;
             productSelect.innerHTML = '<option value="">Wybierz produkt...</option>';
-            
+
             if (selectedBrand && productsData[selectedBrand]) {
                 productSelect.disabled = false;
                 Object.keys(productsData[selectedBrand].products).forEach(productName => {
@@ -267,7 +267,7 @@
             } else {
                 productSelect.disabled = true;
             }
-            
+
             // Reset informacji o produkcie
             document.getElementById('product-type-display').textContent = '-';
             document.getElementById('barcode-display').textContent = '-';
@@ -278,7 +278,7 @@
         productSelect.addEventListener('change', function() {
             const selectedBrand = brandSelect.value;
             const selectedProduct = this.value;
-            
+
             if (selectedBrand && selectedProduct && productsData[selectedBrand]) {
                 const productData = productsData[selectedBrand].products[selectedProduct];
                 if (productData) {
@@ -308,7 +308,7 @@
     function updateLabel() {
         const selectedBrand = document.getElementById('brand-select').value;
         const selectedProduct = document.getElementById('product-select').value;
-        
+
         if (!selectedBrand || !selectedProduct) {
             alert('Proszę wybrać markę i produkt');
             return;
@@ -316,18 +316,18 @@
 
         const brandData = productsData[selectedBrand];
         const productData = brandData.products[selectedProduct];
-        
+
         // Aktualizacja logo
         document.querySelector(".logo img").src = brandData.logo;
-        
+
         // Aktualizacja typu produktu (lewa strona)
         const typeText = productData.type === 'S' ? 'SÓL NIKOTYNOWA' : 'LONGFILL';
         document.getElementById("left-text").textContent = typeText;
-        
+
         // Aktualizacja smaków
         document.getElementById("flavor-line1").textContent = productData.flavor1;
         document.getElementById("flavor-line2").textContent = productData.flavor2;
-        
+
         // Aktualizacja daty i partii
         document.getElementById("expiry").textContent = document.getElementById("expiry-input").value;
         document.getElementById("batch").textContent = document.getElementById("batch-input").value;
@@ -339,7 +339,7 @@
     function downloadLabel() {
         const selectedBrand = document.getElementById('brand-select').value;
         const selectedProduct = document.getElementById('product-select').value;
-        
+
         if (!selectedBrand || !selectedProduct) {
             alert('Proszę wybrać markę i produkt przed pobraniem');
             return;
@@ -358,7 +358,7 @@
     function printLabelPNG() {
         const selectedBrand = document.getElementById('brand-select').value;
         const selectedProduct = document.getElementById('product-select').value;
-        
+
         if (!selectedBrand || !selectedProduct) {
             alert('Proszę wybrać markę i produkt przed drukowaniem');
             return;
