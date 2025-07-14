@@ -1,4 +1,3 @@
-// Konfiguracja produktów dla generatora etykiet
 const productsData = {
     "Panda": {
         logo: "images/panda-logo.svg",
@@ -95,7 +94,6 @@ const productsData = {
     }
 };
 
-// Eksport dla użycia w innych plikach
 if (typeof module !== 'undefined' && module.exports) {
     module.exports = productsData;
 }

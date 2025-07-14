@@ -211,9 +211,7 @@
 <script src="./products-config.js"></script>
 <script>
 
-    // Inicjalizacja formularza
     function initializeForm() {
-        // Automatyczne ustawienie daty ważności (2 lata w przód) i partii (aktualny miesiąc/rok)
         setDefaultDates();
 
         const brandSelect = document.getElementById('brand-select');
@@ -221,7 +219,6 @@
         const expiryInput = document.getElementById('expiry-input');
         const batchInput = document.getElementById('batch-input');
 
-        // Wypełnienie listy marek
         Object.keys(productsData).forEach(brand => {
             const option = document.createElement('option');
             option.value = brand;
@@ -229,7 +226,6 @@
             brandSelect.appendChild(option);
         });
 
-        // Obsługa zmiany marki
         brandSelect.addEventListener('change', function() {
             const selectedBrand = this.value;
             productSelect.innerHTML = '<option value="">Wybierz produkt...</option>';
@@ -246,16 +242,13 @@
                 productSelect.disabled = true;
             }
 
-            // Reset informacji o produkcie
             document.getElementById('product-type-display').textContent = '-';
             document.getElementById('barcode-display').textContent = '-';
             document.getElementById('flavors-display').textContent = '-';
 
-            // Automatyczna aktualizacja etykiety
             updateLabel();
         });
 
-        // Obsługa zmiany produktu
         productSelect.addEventListener('change', function() {
             const selectedBrand = brandSelect.value;
             const selectedProduct = this.value;
@@ -270,16 +263,13 @@
                 }
             }
 
-            // Automatyczna aktualizacja etykiety
             updateLabel();
         });
 
-        // Automatyczna aktualizacja przy zmianie daty ważności
         expiryInput.addEventListener('input', function() {
             document.getElementById("expiry").textContent = this.value;
         });
 
-        // Automatyczna aktualizacja przy zmianie numeru partii
         batchInput.addEventListener('input', function() {
             document.getElementById("batch").textContent = this.value;
         });
@@ -287,21 +277,17 @@
 
     function setDefaultDates() {
         const now = new Date();
-        const currentMonth = now.getMonth() + 1; // getMonth() zwraca 0-11, więc dodajemy 1
+        const currentMonth = now.getMonth() + 1;
         const currentYear = now.getFullYear();
 
-        // Data ważności: 2 lata w przód, format MM/YYYY
         const expiryYear = currentYear + 2;
         const expiryDate = String(currentMonth).padStart(2, '0') + '/' + expiryYear;
 
-        // Numer partii: aktualny miesiąc/rok, format M/YYYY
         const batchNumber = currentMonth + '/' + currentYear;
 
-        // Ustawienie wartości w inputach
         document.getElementById('expiry-input').value = expiryDate;
         document.getElementById('batch-input').value = batchNumber;
 
-        // Aktualizacja etykiety
         document.getElementById("expiry").textContent = expiryDate;
         document.getElementById("batch").textContent = batchNumber;
     }
@@ -331,7 +317,6 @@
         const selectedProduct = document.getElementById('product-select').value;
 
         if (!selectedBrand) {
-            // Reset do stanu początkowego
             document.querySelector(".logo img").src = "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KICA8cmVjdCB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgZmlsbD0iI2Y4ZjlmYSIgc3Ryb2tlPSIjZGVlMmU2IiBzdHJva2Utd2lkdGg9IjIiLz4KICA8dGV4dCB4PSIxMDAiIHk9IjEwNSIgZm9udC1mYW1pbHk9IkFyaWFsLCBzYW5zLXNlcmlmIiBmb250LXNpemU9IjE2IiBmaWxsPSIjNmM3NTdkIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj5MT0dPPC90ZXh0Pgo8L3N2Zz4=";
             document.getElementById("left-text").textContent = "WYBIERZ PRODUKT";
             document.getElementById("flavor-line1").textContent = "SMAK 1";
@@ -341,7 +326,6 @@
         }
 
         if (!selectedProduct) {
-            // Pokaż tylko logo marki
             const brandData = productsData[selectedBrand];
             document.querySelector(".logo img").src = brandData.logo;
             document.getElementById("left-text").textContent = "WYBIERZ PRODUKT";
@@ -354,22 +338,17 @@
         const brandData = productsData[selectedBrand];
         const productData = brandData.products[selectedProduct];
 
-        // Aktualizacja logo
         document.querySelector(".logo img").src = brandData.logo;
 
-        // Aktualizacja typu produktu (lewa strona)
         const typeText = productData.type === 'S' ? 'SÓL NIKOTYNOWA' : 'LONGFILL';
         document.getElementById("left-text").textContent = typeText;
 
-        // Aktualizacja smaków
         document.getElementById("flavor-line1").textContent = productData.flavor1;
         document.getElementById("flavor-line2").textContent = productData.flavor2;
 
-        // Aktualizacja daty i partii
         document.getElementById("expiry").textContent = document.getElementById("expiry-input").value;
         document.getElementById("batch").textContent = document.getElementById("batch-input").value;
 
-        // Generowanie kodu kreskowego
         generateBarcode(productData.barcode);
     }
 
@@ -426,10 +405,8 @@
         });
     }
 
-    // Inicjalizacja po załadowaniu strony
     document.addEventListener('DOMContentLoaded', function() {
         initializeForm();
-        // Generuj pusty kod kreskowy na start
         generateBarcode('');
     });
 </script>
